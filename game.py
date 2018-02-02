@@ -34,11 +34,19 @@ for i in range(8):
 	else: aux = 'b'
 
 	for j in range(4):
-			coord = [aux, xi, yi]
+			coord = [aux, xi, yi, tabuleiro1]
 			linha.append(coord)
 			xi += 2*l
 	matriz_tab.append(linha)
 	yi += l
+
+#Função que vai receber a cor da matriz_tab e mudar de acordo com a necessidade
+def desenhar_tab1(matriz):
+	for i in range(8):
+		for j in range(4):
+			xi = matriz[i][j][1]
+			yi = matriz[i][j][2]
+			pygame.draw.rect(screen, matriz[i][j][3], [xi, yi, l, l])
 
 #Função desenhar peças
 def desenhar_pecas(matriz):
@@ -61,9 +69,30 @@ def val_mouse_click(c):
 		for j in range(4):
 			if (c[0] >= matriz_tab[i][j][1] and c[0] <= matriz_tab[i][j][1] + l) and (c[1] >= matriz_tab[i][j][2] and c[1] <= matriz_tab[i][j][2] + l):
 				if matriz_tab[i][j][0] == 'p' or matriz_tab[i][j][0] == 'b':
-					return True
-				else: return False
-	else: return False
+					return (i, j)
+				else: return 0
+	else: return 0
+
+def casas_validas(coord):
+	i = coord[0]
+	j = coord[1]
+	ls = []
+	if i % 2 == 0:
+		if i - 1 >= 0:
+			ls.append([i - 1, j, verde])
+			if j + 1 <= 3:
+				ls.append([i-1, j+1, verde])
+	else:
+		ls.append([i-1, j, verde])
+		if j-1 >= 0:
+			ls.append([i-1, j-1, verde])
+
+	return ls
+
+
+
+
+
 
 Exit = True
 
@@ -75,21 +104,20 @@ while Exit:
 			Exit = False
 		if event.type == pygame.MOUSEBUTTONDOWN:
 			mouse_pos = pygame.mouse.get_pos()
-			print mouse_pos
-			print val_mouse_click(mouse_pos)
+			if val_mouse_click(mouse_pos) != 0:
+				coord = val_mouse_click(mouse_pos)
+				lista = casas_validas(coord)
+				for a in range(len(lista)):
+					matriz_tab[lista[a][0]][lista[a][1]][3] = lista[a][2]
+
+
 
 	#Cor da tela (Branca)
 	screen.fill(white)
-	#Retângulo grande (Tabuleiro 1)
+	#Retângulo grande (Tabuleiro 2)
 	pygame.draw.rect(screen, tabuleiro2, [200,100,400,400])
-	#Retangulos pequenos (Tabuleiro 2)
-
-	for i in range(8):
-		for j in range(4):
-			xi = matriz_tab[i][j][1]
-			yi = matriz_tab[i][j][2]
-			pygame.draw.rect(screen, tabuleiro1, [xi, yi, l, l])
-
+	#Retangulos pequenos (Tabuleiro 1)
+	desenhar_tab1(matriz_tab)
 	desenhar_pecas(matriz_tab)
 	#locais onde as peças podem ir
 

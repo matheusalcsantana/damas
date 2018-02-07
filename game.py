@@ -22,6 +22,7 @@ r = 22
 #Matriz Tabuleiro - Coordenadas inicias
 yi = 100
 matriz_tab = []
+obrigatorios = []
 for i in range(8):
 	linha = []
 	if i % 2 == 0:
@@ -64,16 +65,39 @@ def desenhar_pecas(matriz):
 				pygame.draw.circle(screen, black, [matriz[i][j][1] + l/2, matriz[i][j][2] + l/2], r, 1)
 				pygame.draw.circle(screen, black, [matriz[i][j][1] + l/2, matriz[i][j][2] + l/2], 15, 1)
 
+#Função receber as coordenas do click e encaminhar
+movimentos = []
 def val_mouse_click(c):
+	global movimentos, origem
+	e = 1
 	for i in range(8):
 		for j in range(4):
 			if (c[0] >= matriz_tab[i][j][1] and c[0] <= matriz_tab[i][j][1] + l) and (c[1] >= matriz_tab[i][j][2] and c[1] <= matriz_tab[i][j][2] + l):
-				if matriz_tab[i][j][0] == 'p' or matriz_tab[i][j][0] == 'b':
-					return (i, j)
-				else: return 0
-	else: return 0
-
+				e = 0
+				if movimentos == []:
+					casas_validas((i,j))
+					origem = [i, j]
+				else:
+					if [i, j] in movimentos:
+						destino = [i, j]
+						movimentar_peca(origem, destino)
+						resetar_cor_tab()
+						movimentos = []
+						origem = []
+					elif matriz_tab[i][j][0] == 'p' or matriz_tab[i][j][0] == 'b':
+						movimentos = []
+						resetar_cor_tab()
+						casas_validas((i,j))
+						origem = [i, j]
+					else:
+						resetar_cor_tab()
+						movimentos = []
+	if e != 0:
+		resetar_cor_tab()
+		movimentos = []
+#Função que diz quais casas são válidas para de movimentar
 def casas_validas(coord):
+	global movimentos
 	i = coord[0]
 	j = coord[1]
 	ls = []
@@ -87,12 +111,20 @@ def casas_validas(coord):
 		if j-1 >= 0:
 			ls.append([i-1, j-1, verde])
 
-	return ls
+	for a in range(len(ls)):
+		matriz_tab[ls[a][0]][ls[a][1]][3] = ls[a][2]
+		movimentos.append([ls[a][0], ls[a][1]])
 
+#Função para resetar cores tabuleiro
+def resetar_cor_tab():
+	for i in range(8):
+		for j in range(4):
+			matriz_tab[i][j][3] = tabuleiro1
 
-
-
-
+#Função movimentar a peça
+def movimentar_peca(origem, destino):
+	global matriz_tab
+	matriz_tab[origem[0]][origem[1]][0], matriz_tab[destino[0]][destino[1]][0] = matriz_tab[destino[0]][destino[1]][0], matriz_tab[origem[0]][origem[1]][0]
 
 Exit = True
 
@@ -104,11 +136,8 @@ while Exit:
 			Exit = False
 		if event.type == pygame.MOUSEBUTTONDOWN:
 			mouse_pos = pygame.mouse.get_pos()
-			if val_mouse_click(mouse_pos) != 0:
-				coord = val_mouse_click(mouse_pos)
-				lista = casas_validas(coord)
-				for a in range(len(lista)):
-					matriz_tab[lista[a][0]][lista[a][1]][3] = lista[a][2]
+			val_mouse_click(mouse_pos)
+
 
 
 

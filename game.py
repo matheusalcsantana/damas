@@ -22,7 +22,6 @@ r = 22
 #Matriz Tabuleiro - Coordenadas inicias
 yi = 100
 matriz_tab = []
-obrigatorios = []
 for i in range(8):
 	linha = []
 	if i % 2 == 0:
@@ -31,7 +30,7 @@ for i in range(8):
 		xi = 200
 
 	if i >= 0 and i <= 2: aux = 'p'
- 	elif i > 2 and i <= 4: aux = ' '
+	elif i > 2 and i <= 4: aux = ' '
 	else: aux = 'b'
 
 	for j in range(4):
@@ -41,104 +40,121 @@ for i in range(8):
 	matriz_tab.append(linha)
 	yi += l
 
-#Função que vai receber a cor da matriz_tab e mudar de acordo com a necessidade
-def desenhar_tab1(matriz):
-	for i in range(8):
-		for j in range(4):
-			xi = matriz[i][j][1]
-			yi = matriz[i][j][2]
-			pygame.draw.rect(screen, matriz[i][j][3], [xi, yi, l, l])
+class Jogo:
 
-#Função desenhar peças
-def desenhar_pecas(matriz):
-	for i in range(8):
-		for j in range(4):
-			#Peças brancas
-			if matriz_tab[i][j][0] == 'b':
-				pygame.draw.circle(screen, cor_brancas, [matriz[i][j][1] + l/2, matriz[i][j][2] + l/2], r)
-				pygame.draw.circle(screen, black, [matriz[i][j][1] + l/2, matriz[i][j][2] + l/2], r, 1)
-				pygame.draw.circle(screen, black, [matriz[i][j][1] + l/2, matriz[i][j][2] + l/2], 15, 1)
+	def __init__(self):
+		global matriz_tab
+		self.movimentos = []
+		self.obrigatorios = []
+		self.origem = None
+		self.matriz_tab = matriz_tab
 
-			#Peças pretas
-			if matriz_tab[i][j][0] == 'p':
-				pygame.draw.circle(screen, cor_pretas, [matriz[i][j][1] + l/2, matriz[i][j][2] + l/2], r)
-				pygame.draw.circle(screen, black, [matriz[i][j][1] + l/2, matriz[i][j][2] + l/2], r, 1)
-				pygame.draw.circle(screen, black, [matriz[i][j][1] + l/2, matriz[i][j][2] + l/2], 15, 1)
 
-#Função receber as coordenas do click e encaminhar
-movimentos = []
-def val_mouse_click(c):
-	global movimentos, origem
-	e = 1
-	for i in range(8):
-		for j in range(4):
-			if (c[0] >= matriz_tab[i][j][1] and c[0] <= matriz_tab[i][j][1] + l) and (c[1] >= matriz_tab[i][j][2] and c[1] <= matriz_tab[i][j][2] + l):
-				e = 0
-				if movimentos == []:
-					casas_validas((i,j))
-					origem = [i, j]
-				else:
-					if [i, j] in movimentos:
-						destino = [i, j]
-						movimentar_peca(origem, destino)
-						resetar_cor_tab()
-						movimentos = []
-						origem = []
-					elif matriz_tab[i][j][0] == 'p' or matriz_tab[i][j][0] == 'b':
-						movimentos = []
-						resetar_cor_tab()
-						casas_validas((i,j))
-						origem = [i, j]
+	#Função que vai receber a cor da matriz_tab e mudar de acordo com a necessidade
+	def desenhar_tab1(self):
+		matriz_tab = self.matriz_tab
+		for i in range(8):
+			for j in range(4):
+				xi = matriz_tab[i][j][1]
+				yi = matriz_tab[i][j][2]
+				pygame.draw.rect(screen, matriz_tab[i][j][3], [xi, yi, l, l])
+
+	#Função desenhar peças
+	def desenhar_pecas(self):
+		for i in range(8):
+			for j in range(4):
+				matriz_tab = self.matriz_tab
+				#Peças brancas
+				if matriz_tab[i][j][0] == 'b':
+					pygame.draw.circle(screen, cor_brancas, [matriz_tab[i][j][1] + l/2, matriz_tab[i][j][2] + l/2], r)
+					pygame.draw.circle(screen, black, [matriz_tab[i][j][1] + l/2, matriz_tab[i][j][2] + l/2], r, 1)
+					pygame.draw.circle(screen, black, [matriz_tab[i][j][1] + l/2, matriz_tab[i][j][2] + l/2], 15, 1)
+
+				#Peças pretas
+				if matriz_tab[i][j][0] == 'p':
+					pygame.draw.circle(screen, cor_pretas, [matriz_tab[i][j][1] + l/2, matriz_tab[i][j][2] + l/2], r)
+					pygame.draw.circle(screen, black, [matriz_tab[i][j][1] + l/2, matriz_tab[i][j][2] + l/2], r, 1)
+					pygame.draw.circle(screen, black, [matriz_tab[i][j][1] + l/2, matriz_tab[i][j][2] + l/2], 15, 1)
+
+	#Função receber as coordenas do click e encaminhar
+	def val_mouse_click(self, c):
+		e = 1
+		matriz_tab = self.matriz_tab
+		for i in range(8):
+			for j in range(4):
+				if (c[0] >= matriz_tab[i][j][1] and c[0] <= matriz_tab[i][j][1] + l) and (c[1] >= matriz_tab[i][j][2] and c[1] <= matriz_tab[i][j][2] + l):
+					e = 0
+					print self.movimentos
+					if self.movimentos == []:
+						print "flag1"
+						self.casas_validas((i,j))
+						self.origem = [i, j]
 					else:
-						resetar_cor_tab()
-						movimentos = []
-	if e != 0:
-		resetar_cor_tab()
-		movimentos = []
-#Função que diz quais casas são válidas para de movimentar
-def casas_validas(coord):
-	global movimentos
-	i = coord[0]
-	j = coord[1]
-	ls = []
-	if i % 2 == 0:
-		if i - 1 >= 0:
-			ls.append([i - 1, j, verde])
-			if j + 1 <= 3:
-				ls.append([i-1, j+1, verde])
-	else:
-		ls.append([i-1, j, verde])
-		if j-1 >= 0:
-			ls.append([i-1, j-1, verde])
+						print "flag2"
+						if [i, j] in self.movimentos:
+							print "flag3"
+							destino = [i, j]
+							self.movimentar_peca(self.origem, destino)
+							self.resetar_cor_tab()
+							self.movimentos = []
+							self.origem = []
+						elif matriz_tab[i][j][0] == 'p' or matriz_tab[i][j][0] == 'b':
+							print "flag4"
+							self.movimentos = []
+							self.resetar_cor_tab()
+							self.casas_validas((i,j))
+							self.origem = [i, j]
+						else:
+							print "flag5"
+							self.resetar_cor_tab()
+							self.movimentos = []
+		if e != 0:
+			print "flag6"
+			self.resetar_cor_tab()
+			self.movimentos = []
 
-	for a in range(len(ls)):
-		matriz_tab[ls[a][0]][ls[a][1]][3] = ls[a][2]
-		movimentos.append([ls[a][0], ls[a][1]])
+	def casas_validas(self, coord):
+		i = coord[0]
+		j = coord[1]
+		ls = []
+		movs = []
+		if self.matriz_tab[i][j][0] == 'b':
+			if i % 2 == 0:
+				if i - 1 >= 0:
+					ls.append([i - 1, j, verde])
+					if j + 1 <= 3:
+						ls.append([i-1, j+1, verde])
+			else:
+				ls.append([i-1, j, verde])
+				if j-1 >= 0:
+					ls.append([i-1, j-1, verde])
 
-#Função para resetar cores tabuleiro
-def resetar_cor_tab():
-	for i in range(8):
-		for j in range(4):
-			matriz_tab[i][j][3] = tabuleiro1
+		for a in range(len(ls)):
+			self.matriz_tab[ls[a][0]][ls[a][1]][3] = ls[a][2]
+			movs.append([ls[a][0], ls[a][1]])
+			self.movimentos = movs
 
-#Função movimentar a peça
-def movimentar_peca(origem, destino):
-	global matriz_tab
-	matriz_tab[origem[0]][origem[1]][0], matriz_tab[destino[0]][destino[1]][0] = matriz_tab[destino[0]][destino[1]][0], matriz_tab[origem[0]][origem[1]][0]
+	#Função para resetar cores tabuleiro
+	def resetar_cor_tab(self):
+		for i in range(8):
+			for j in range(4):
+				self.matriz_tab[i][j][3] = tabuleiro1
+
+	#Função movimentar a peça
+	def movimentar_peca(self, origem, destino):
+		self.matriz_tab[origem[0]][origem[1]][0], self.matriz_tab[destino[0]][destino[1]][0] = self.matriz_tab[destino[0]][destino[1]][0], self.matriz_tab[origem[0]][origem[1]][0]
 
 Exit = True
 
 while Exit:
-
+	jogo = Jogo()
 	for event in pygame.event.get():
 		#Evento para quitar game
 		if event.type == pygame.QUIT:
 			Exit = False
 		if event.type == pygame.MOUSEBUTTONDOWN:
 			mouse_pos = pygame.mouse.get_pos()
-			val_mouse_click(mouse_pos)
-
-
+			jogo.val_mouse_click(mouse_pos)
 
 
 	#Cor da tela (Branca)
@@ -146,8 +162,8 @@ while Exit:
 	#Retângulo grande (Tabuleiro 2)
 	pygame.draw.rect(screen, tabuleiro2, [200,100,400,400])
 	#Retangulos pequenos (Tabuleiro 1)
-	desenhar_tab1(matriz_tab)
-	desenhar_pecas(matriz_tab)
+	jogo.desenhar_tab1()
+	jogo.desenhar_pecas()
 	#locais onde as peças podem ir
 
 	#Atualizar a tela

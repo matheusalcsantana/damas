@@ -39,17 +39,21 @@ for i in range(8):
 			xi += 2*l
 	matriz_tab.append(linha)
 	yi += l
+	
+
 
 class Jogo:
-
+	
+	movimentos = []
+	origem = []
+	
 	def __init__(self):
 		global matriz_tab
-		self.movimentos = []
-		self.obrigatorios = []
-		self.origem = None
+		
 		self.matriz_tab = matriz_tab
 
-
+	def zerar_movimentos(self):
+		self.movimentos = []
 	#Função que vai receber a cor da matriz_tab e mudar de acordo com a necessidade
 	def desenhar_tab1(self):
 		matriz_tab = self.matriz_tab
@@ -88,15 +92,18 @@ class Jogo:
 					if self.movimentos == []:
 						print "flag1"
 						self.casas_validas((i,j))
-						self.origem = [i, j]
+						self.origem.append(i) 
+						self.origem.append(j)
 					else:
 						print "flag2"
 						if [i, j] in self.movimentos:
 							print "flag3"
 							destino = [i, j]
+							print self.origem
 							self.movimentar_peca(self.origem, destino)
 							self.resetar_cor_tab()
-							self.movimentos = []
+							self.zerar_movimentos()
+							print self.movimentos
 							self.origem = []
 						elif matriz_tab[i][j][0] == 'p' or matriz_tab[i][j][0] == 'b':
 							print "flag4"
@@ -132,7 +139,7 @@ class Jogo:
 		for a in range(len(ls)):
 			self.matriz_tab[ls[a][0]][ls[a][1]][3] = ls[a][2]
 			movs.append([ls[a][0], ls[a][1]])
-			self.movimentos = movs
+		self.movimentos = movs
 
 	#Função para resetar cores tabuleiro
 	def resetar_cor_tab(self):
@@ -146,8 +153,10 @@ class Jogo:
 
 Exit = True
 
+jogo = Jogo()
+
 while Exit:
-	jogo = Jogo()
+	
 	for event in pygame.event.get():
 		#Evento para quitar game
 		if event.type == pygame.QUIT:

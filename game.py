@@ -50,10 +50,11 @@ class Jogo:
 	pulo_pretas = 0
 	pulo_brancas = 0
 	pecas_puladas = []
-
+	turno = 0
+	
 	def __init__(self):
 		global matriz_tab
-
+		
 		self.matriz_tab = matriz_tab
 
 	#Função que vai receber a cor da matriz_tab e mudar de acordo com a necessidade
@@ -124,7 +125,7 @@ class Jogo:
 		j = coord[1]
 		ls = []
 		movs = []
-		if self.matriz_tab[i][j][0] == 'b':
+		if self.matriz_tab[i][j][0] == 'b' and self.checar_turno() == 'b':
 			#Peça branca, linha par
 			if i % 2 == 0:
 				#Verificar se a casa acima existe
@@ -181,7 +182,7 @@ class Jogo:
 								ls.append([i-2, j-1, verde])
 								self.pecas_puladas.append([i-1, j-1])
 
-		elif self.matriz_tab[i][j][0] == 'p':
+		elif self.matriz_tab[i][j][0] == 'p' and self.checar_turno() == 'p':
 			if i % 2 != 0:
 				j -= 1
 				par = False
@@ -242,15 +243,26 @@ class Jogo:
 			for m in self.pecas_puladas:
 				i = m[0]
 				j = m[1]
+				if self.matriz_tab[i][j][0] == 'p':
+					self.pulo_brancas += 1
+				elif self.matriz_tab[i][j][0] == 'b':
+					self.pulo_pretas += 1		
 				self.matriz_tab[i][j][0] = ' '
 			self.pecas_puladas = []
+		self.turno += 1
 
 	def zerar_atributos(self):
 		self.movimentos = []
 		self.origem = []
 		self.pecas_puladas = []
+	
+	def checar_turno(self):
+		if self.turno % 2 == 0:
+			return "b"
+		else:
+			return "p"
 
-font_ingame = pygame.font.SysFont('Comic Sans MS', 25)
+font_ingame = pygame.font.SysFont('Comic Sans MS', 20)
 
 def msg_ingame(msg, coordenas):
 	text = font_ingame.render(msg, True, black)
@@ -278,8 +290,8 @@ while Exit:
 	jogo.desenhar_tab1()
 	jogo.desenhar_pecas()
 	#locais onde as peças podem ir
-	texto_teste = pygame.font.SysFont('Comic Sans MS', 30)
-
+	msg_ingame("Pontos Brancas = %i" % jogo.pulo_brancas, (10,300))
+	msg_ingame("Pontos Pretas = %i" % jogo.pulo_pretas, (610,300))
 	#Atualizar a tela
 	pygame.display.update()
 
